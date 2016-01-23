@@ -2,6 +2,7 @@ package server.impl;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
@@ -35,7 +36,6 @@ public class AbstractCommandWatcher implements Service , Runnable{
 	@Override
 	public void run() {
 		List<Update> tmpUpdateList = null;
-		
 		while(alive) {
 			
 			try {
@@ -45,12 +45,12 @@ public class AbstractCommandWatcher implements Service , Runnable{
 			}
 			
 			tmpUpdateList = telegramBot.getUpdates(OFFSET, UPDATE_LIMIT, 0).updates();
-			
 			for(Update u: tmpUpdateList) {
 				long chatId = u.message().chat().id();
 				if(!updateMap.containsKey(chatId)) {
 					updateMap.put(chatId, u);
-					new Thread(new OrderManager(chatId));
+					new Thread(new OrderManager(u, telegramBot)).start();;
+					
 				}
 			}			
 		}
@@ -97,5 +97,6 @@ public class AbstractCommandWatcher implements Service , Runnable{
 	public void setUpdateMap(HashMap<Long, Update> updateMap) {
 		this.updateMap = updateMap;
 	}
-	
+		
 }
+
