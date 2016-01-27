@@ -1,8 +1,7 @@
 package server.impl;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
@@ -15,9 +14,9 @@ public class AbstractCommandWatcher implements Service , Runnable{
 	protected long delay;
 	protected Thread thread;
 	protected TelegramBot telegramBot;
-	protected HashMap<Long, Update> updateMap;
+	public static ConcurrentHashMap<Long, Update> updateMap = new ConcurrentHashMap<>();
 	public static final Integer UPDATE_LIMIT = 100;
-	public static Integer OFFSET;
+	public static volatile Integer OFFSET;
 	
 	/**
 	 * 
@@ -27,9 +26,10 @@ public class AbstractCommandWatcher implements Service , Runnable{
 	public AbstractCommandWatcher(long delay, TelegramBot bot) {
 		this.delay = delay;
 		this.telegramBot = bot;
-		this.updateMap = new HashMap<>();
 		List<Update> tmpList= bot.getUpdates(OFFSET, UPDATE_LIMIT, 0).updates();
-		OFFSET = tmpList.get(tmpList.size() -1).updateId();
+		
+		if(tmpList.size() != 0 )
+			OFFSET = tmpList.get(tmpList.size() -1).updateId();
 	}
 	
 	
@@ -49,10 +49,11 @@ public class AbstractCommandWatcher implements Service , Runnable{
 				long chatId = u.message().chat().id();
 				if(!updateMap.containsKey(chatId)) {
 					updateMap.put(chatId, u);
-					new Thread(new OrderManager(u, telegramBot)).start();;
+					new Thread(new OrderManager(u, telegramBot)).start();
 					
 				}
-			}			
+			}
+			tmpUpdateList.clear();
 		}
 	}
 
@@ -90,13 +91,6 @@ public class AbstractCommandWatcher implements Service , Runnable{
 		this.telegramBot = telegramBot;
 	}
 
-	public HashMap<Long, Update> getUpdateMap() {
-		return updateMap;
-	}
-
-	public void setUpdateMap(HashMap<Long, Update> updateMap) {
-		this.updateMap = updateMap;
-	}
 		
 }
 

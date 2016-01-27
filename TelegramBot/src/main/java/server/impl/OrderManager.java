@@ -59,11 +59,20 @@ public class OrderManager implements Runnable{
 		if (update.message().text().equals("")) {
 			
 		}	
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		AbstractCommandWatcher.updateMap.remove(chatId);
+		AbstractCommandWatcher.OFFSET = update.updateId() + 1;
 	}
 
 	public Update waitForResponse() {
-	
-		while(true) {
+
+		while (true) {
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
@@ -72,11 +81,10 @@ public class OrderManager implements Runnable{
 			List<Update> tmpList = telegramBot.getUpdates(
 					AbstractCommandWatcher.OFFSET,
 					AbstractCommandWatcher.UPDATE_LIMIT, 0).updates();
-			
-			
-			for(Update u: tmpList) {
-				if(u.message().chat().id() == chatId && (u.updateId() > update.updateId())) 
-					return u;
+
+			for (Update u : tmpList) {
+				if (u.message().chat().id() == chatId && (u.updateId() > update.updateId())) 
+					return u;		
 			}
 		}
 	}
