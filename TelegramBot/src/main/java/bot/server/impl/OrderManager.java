@@ -1,4 +1,4 @@
-package server.impl;
+package bot.server.impl;
 
 import java.util.List;
 

@@ -1,12 +1,12 @@
-package server.impl;
+package bot.server.impl;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import bot.server.Service;
+
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
-
-import server.Service;
 
 public class AbstractCommandWatcher implements Service , Runnable{
 	
@@ -46,6 +46,8 @@ public class AbstractCommandWatcher implements Service , Runnable{
 			
 			tmpUpdateList = telegramBot.getUpdates(OFFSET, UPDATE_LIMIT, 0).updates();
 			for(Update u: tmpUpdateList) {
+				//System.out.println(u.message().contact().phoneNumber());
+				System.out.println(u.message());
 				long chatId = u.message().chat().id();
 				if(!updateMap.containsKey(chatId)) {
 					updateMap.put(chatId, u);

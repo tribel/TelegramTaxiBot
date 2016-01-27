@@ -1,4 +1,4 @@
-package server;
+package bot.server;
 
 /**
  * Interface represents a class that will act as a server.
