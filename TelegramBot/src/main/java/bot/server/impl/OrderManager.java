@@ -1,7 +1,9 @@
 package bot.server.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -43,6 +45,8 @@ public class OrderManager implements Runnable{
 		}
 		
 		responseListBySelectLang = languageService.getLanguageListByStepLable(update.message().text());
+		Collections.sort(responseListBySelectLang, (x,y) -> x.compareTo(y));
+		
 		responseKeyboardMessage(null, update.message(), "login");	
 		update = waitForResponse();
 		if (update.message().text().equals("")) {

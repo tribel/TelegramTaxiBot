@@ -7,7 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class Language {
+public class Language implements Comparable<Language>{
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
@@ -82,5 +82,12 @@ public class Language {
 				+ priority + ", stepLable=" + stepLable + ", text=" + text
 				+ "]";
 	}
+
+	@Override
+	public int compareTo(Language o) {
+		return -Integer.compare(this.getPriority(), o.getPriority());
+	}
+
+
 	
 }
