@@ -14,9 +14,7 @@ public class HibernateUtil {
 		
 		} catch (Throwable e) {
 			e.printStackTrace();
-		}
-		
-		
+		}	
 	}
 	
 	public static SessionFactory getSessionFactory() {

@@ -9,4 +9,11 @@ public interface LanguageService {
 	public List<String> getLanguageList();
 	
 	public void addRecord(Language l);
+	
+	public void deleteRecord(Language l);
+	
+	public List<String> getTextListByStepLable(String lng, String sl);
+	
+	public List<Language> getLanguageListByStepLable(String lng);
+
 }

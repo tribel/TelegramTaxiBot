@@ -1,6 +1,12 @@
 package bot.server.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import bot.jpa.entity.Language;
+import bot.jpa.service.LanguageService;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
@@ -11,9 +17,15 @@ import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 
 public class OrderManager implements Runnable{
 
+	private LanguageService languageService = new ClassPathXmlApplicationContext("spring.xml").getBean(LanguageService.class);
+	
 	private long chatId;
 	private Update update;
 	private TelegramBot telegramBot;
+	private List<Language> responseListBySelectLang;
+	
+	public OrderManager() {
+	}
 	
 	public OrderManager(Update update, TelegramBot bot) {
 		this.update = update;
@@ -23,38 +35,40 @@ public class OrderManager implements Runnable{
 	
 	@Override
 	public void run() {
-		
-		languageSelect(update.message());
+	
+		responseKeyoardMessage("Choose your language", languageService.getLanguageList(), update.message());
 		update = waitForResponse();
 		if (update.message().text().equals("")) {
 			
 		}
 		
-		autorizeSelect(update.message());
+		responseListBySelectLang = languageService.getLanguageListByStepLable(update.message().text());
+		responseKeyboardMessage(null, update.message(), "login");	
 		update = waitForResponse();
 		if (update.message().text().equals("")) {
 			
 		}
 		
-		enteredClientAddrees(update.message());
+		
+		sendSimpleMessage("address");
 		update = waitForResponse();
 		if (true) {
 			
 		}
 		
-		enteredDestinationAddress(update.message());
+		sendSimpleMessage("destAddress");
 		update = waitForResponse();
 		if (true) {
 			
 		}
 		
-		specifyOrderAddress(update.message());
+		responseKeyboardMessage(null, update.message(), "specify");
 		update = waitForResponse();
 		if (update.message().text().equals("")) {
 			
 		}
 		
-		confirmOrder(update.message());
+		responseKeyboardMessage(null, update.message(), "confirm");
 		update = waitForResponse();
 		if (update.message().text().equals("")) {
 			
@@ -89,61 +103,54 @@ public class OrderManager implements Runnable{
 		}
 	}
 	
-	public void languageSelect(Message msg) {
-		telegramBot.sendMessage(chatId, "Choose language");
-		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false,
-				msg.messageId(), new ReplyKeyboardMarkup(
-						new String[] {"English", "Русский" }, 
-						new String[] { "Українська","Отмена" }).
-						oneTimeKeyboard(true).resizeKeyboard(true));
+	public void responseKeyoardMessage(String firstMsg, List<String> keyboardList, Message msg) {
+		if(firstMsg != null) {
+			telegramBot.sendMessage(chatId, firstMsg);
+		}
+		
+		String[][] strings = new String[keyboardList.size()][1];
+		for(int i = 0; i < keyboardList.size(); i++) {
+			for(int j = 0; j < strings[i].length; j++) {
+				strings[i][j] = keyboardList.get(i);
+			}
+		}
+		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false, msg.messageId(),
+								 new ReplyKeyboardMarkup(strings)
+								.oneTimeKeyboard(true).resizeKeyboard(true));
+		
 	}
 	
-	public void autorizeSelect(Message msg) {
-		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false,
-				msg.messageId(),
-				new ReplyKeyboardMarkup(new String[] { "Вход" }, 
-						new String[]{"Регистрация"},
-						new String[]{"Заказ без аккаунта"}, 
-						new String[]{"Отмена"}).
-						oneTimeKeyboard(true).resizeKeyboard(true));
+	public void responseKeyboardMessage(String firstMsg, Message msg, String step) {
+		if(firstMsg != null) {
+			telegramBot.sendMessage(chatId, firstMsg);
+		}
+		
+		List<String> tmpList = new ArrayList<>();
+		for(Language l: responseListBySelectLang) {
+			if(l.getStepLable().equals(step) || l.getStepLable().equals("cancel")) 
+				tmpList.add(l.getText());
+		}
+		
+
+		String[][] strings = new String[tmpList.size()][1];
+		for(int i = 0; i < tmpList.size(); i++) {
+			for(int j = 0; j < strings[i].length; j++) {
+				strings[i][j] = tmpList.get(i);
+			}
+		}
+		
+		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false, msg.messageId(),
+				 new ReplyKeyboardMarkup(strings)
+				.oneTimeKeyboard(true).resizeKeyboard(true));
 	}
 	
-	public void enteredClientAddrees(Message msg) {
-		telegramBot.sendMessage(chatId, "Веедите ваш адрес");
+	public void sendSimpleMessage(String step) {
+		String tmpVal = null;
+		for(Language l: responseListBySelectLang) {
+			if(l.getStepLable().equals(step)) tmpVal = l.getText();
+		}
+		
+		telegramBot.sendMessage(chatId, tmpVal);
 	}
 	
-	public void enteredDestinationAddress(Message msg) {
-		telegramBot.sendMessage(chatId, "Адрес прибытия");
-	}
-	
-	public void specifyOrderAddress(Message msg) {
-		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false,
-				msg.messageId(),
-				new ReplyKeyboardMarkup(new String[] { "Подьехать к подъезду"}, 
-						new String[]{"хочу игорька"},
-						new String[]{"Отмена" }).
-						oneTimeKeyboard(true).resizeKeyboard(true));
-	}
-	
-	public void setNumberOfPorch(Message msg) {
-		telegramBot.sendMessage(chatId, "");
-	}
-	
-	public void setTime(Message msg) {
-		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false,
-				msg.messageId(),
-				new ReplyKeyboardMarkup(new String[] { "На сейчас" }, 
-						new String[]{ "Через час"},
-						new String[]{"К игорю на хату"},
-						new String[]{"Отмена"}).
-						oneTimeKeyboard(true).resizeKeyboard(true));
-	}
-	
-	public void confirmOrder(Message msg) {
-		telegramBot.sendMessage(chatId, "Едем на хату к Игрьку");
-		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false,
-				msg.messageId(),
-				new ReplyKeyboardMarkup(new String[] { "Подтверждаю заказ", "Отмена",}).
-																oneTimeKeyboard(true).resizeKeyboard(true));
-	}
 }
