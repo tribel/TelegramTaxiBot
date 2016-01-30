@@ -106,14 +106,9 @@ public class OrderManager implements Runnable{
 	public void responseKeyoardMessage(String firstMsg, List<String> keyboardList, Message msg) {
 		if(firstMsg != null) {
 			telegramBot.sendMessage(chatId, firstMsg);
-		}
-		
-		String[][] strings = new String[keyboardList.size()][1];
-		for(int i = 0; i < keyboardList.size(); i++) {
-			for(int j = 0; j < strings[i].length; j++) {
-				strings[i][j] = keyboardList.get(i);
-			}
-		}
+		}		
+		String[][] strings = convertListToArray(keyboardList);
+
 		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false, msg.messageId(),
 								 new ReplyKeyboardMarkup(strings)
 								.oneTimeKeyboard(true).resizeKeyboard(true));
@@ -131,13 +126,7 @@ public class OrderManager implements Runnable{
 				tmpList.add(l.getText());
 		}
 		
-
-		String[][] strings = new String[tmpList.size()][1];
-		for(int i = 0; i < tmpList.size(); i++) {
-			for(int j = 0; j < strings[i].length; j++) {
-				strings[i][j] = tmpList.get(i);
-			}
-		}
+		String[][] strings = convertListToArray(tmpList);
 		
 		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false, msg.messageId(),
 				 new ReplyKeyboardMarkup(strings)
@@ -151,6 +140,17 @@ public class OrderManager implements Runnable{
 		}
 		
 		telegramBot.sendMessage(chatId, tmpVal);
+	}
+	
+	public String[][] convertListToArray(List<String> list) {
+		
+		String[][] strings = new String[list.size()][1];
+		for(int i = 0; i < list.size(); i++) {
+			for(int j = 0; j < strings[i].length; j++) {
+				strings[i][j] = list.get(i);
+			}
+		}
+		return strings;
 	}
 	
 }
