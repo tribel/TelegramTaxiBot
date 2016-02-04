@@ -23,17 +23,21 @@ public class Language implements Comparable<Language>{
 	
 	@Column
 	private String text;
+	
+	@Column
+	private int choiceId;
 
 	public Language() {
 	}
 
 	public Language(String language, int priority, String stepLable,
-			String text) {
+			String text , int choice) {
 		super();
 		this.language = language;
 		this.priority = priority;
 		this.stepLable = stepLable;
 		this.text = text;
+		this.choiceId = choice;
 	}
 
 	public int getId() {
@@ -75,12 +79,20 @@ public class Language implements Comparable<Language>{
 	public void setText(String text) {
 		this.text = text;
 	}
+	
+	public int getChoiceId() {
+		return choiceId;
+	}
+
+	public void setChoiceId(int choiceId) {
+		this.choiceId = choiceId;
+	}
 
 	@Override
 	public String toString() {
 		return "Language [id=" + id + ", language=" + language + ", priority="
 				+ priority + ", stepLable=" + stepLable + ", text=" + text
-				+ "]";
+				+ ", choiceId=" + choiceId + "]";
 	}
 
 	@Override

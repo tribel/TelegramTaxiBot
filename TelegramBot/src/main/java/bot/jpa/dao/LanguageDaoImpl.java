@@ -43,7 +43,7 @@ public class LanguageDaoImpl implements LanguageDao{
 	public List<String> getTextListByStepLable(String lng, String sl) {
 		openSession().beginTransaction();
 		List<String> tmpList = session.createQuery(
-						"SELECT l.text FROM Language l WHERE l.language = :lang AND l.stepLable = :lable")
+		"SELECT l.text FROM Language l WHERE l.language = :lang AND l.stepLable = :lable ORDER BY l.priority DESC")
 				.setParameter("lang", lng).setParameter("lable", sl).list();
 		session.getTransaction().commit();
 		closeSession();
@@ -55,7 +55,7 @@ public class LanguageDaoImpl implements LanguageDao{
 	public List<Language> getLanguageListByStepLable(String lng) {
 		openSession().beginTransaction();
 		List<Language> tmpList = session.createQuery(
-							"SELECT l FROM Language l WHERE l.language = :lang")
+							"SELECT l FROM Language l WHERE l.language = :lang ORDER BY l.priority DESC")
 						.setParameter("lang", lng).list();
 		session.getTransaction().commit();
 		closeSession();
