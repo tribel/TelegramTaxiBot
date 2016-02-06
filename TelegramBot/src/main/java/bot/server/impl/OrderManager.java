@@ -5,14 +5,18 @@ import java.util.List;
 
 
 
+
+
+import javax.inject.Inject;
+
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import bot.jpa.entity.Language;
 import bot.jpa.service.LanguageService;
 import bot.server.StepEnum;
+import bot.webordersapi.TaxiOrders;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
@@ -21,6 +25,9 @@ import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 public class OrderManager implements Runnable{
 
 	private LanguageService languageService = new ClassPathXmlApplicationContext("spring.xml").getBean(LanguageService.class);
+	
+	@Inject
+	private TaxiOrders taxiOrders;
 	
 	private long chatId;
 	private Update update;
@@ -40,17 +47,17 @@ public class OrderManager implements Runnable{
 	@Override
 	public void run() {
 
-		responseKeyoardMessage("Choose your language", languageService.getLanguageList(), update.message());	
+		responseKeyoardMessage(languageService.getLanguageList(),"Choose your language");	
 		responseListBySelectLang = languageService.getLanguageListByStepLable(update.message().text());
 		
 		int choice = getStepId(
-				responseKeyboardMessage(null, update.message(), StepEnum.LOGIN.getStep()).message().text());	
-	
+				responseKeyboardMessage("choose ",StepEnum.LOGIN.getStep()).message().text());	
+		
 		if (choice == 1) {
 			sendSimpleMessage(StepEnum.ENTER_NAME.getStep());
 			// telephone load
 			choice = getStepId(
-						responseKeyboardMessage(null, update.message(), StepEnum.TIME.getStep()).message().text());
+						responseKeyboardMessage("Hello" + update.message().text(), StepEnum.TIME.getStep()).message().text());
 			if(choice == 2) {
 				
 			} else if(choice == 1) {
@@ -58,17 +65,17 @@ public class OrderManager implements Runnable{
 			}
 			
 			choice = getStepId(
-					responseKeyboardMessage("Comments ?", update.message(), StepEnum.YES_NO.getStep()).message().text());
+					responseKeyboardMessage("Comments ?",StepEnum.YES_NO.getStep()).message().text());
 			if(choice == 2) {
 				sendSimpleMessage(StepEnum.COMMENTS.getStep());
 			} 
 			
 			choice = getStepId(
-					responseKeyboardMessage("What car", update.message(), StepEnum.YES_NO.getStep()).message().text());
+					responseKeyboardMessage("What car", StepEnum.YES_NO.getStep()).message().text());
 			
 			if(choice == 2) {
 				choice = getStepId(
-						responseKeyboardMessage(null, update.message(), StepEnum.CHOOSE_CAR.getStep()).message().text());
+						responseKeyboardMessage(null, StepEnum.CHOOSE_CAR.getStep()).message().text());
 				if(choice == 2) {
 					
 				} else if( choice == 1) {
@@ -77,11 +84,11 @@ public class OrderManager implements Runnable{
 			}
 			
 			choice = getStepId(
-					responseKeyboardMessage("Additional conditions", update.message(), StepEnum.YES_NO.getStep()).message().text());
+					responseKeyboardMessage("Additional conditions", StepEnum.YES_NO.getStep()).message().text());
 				
 			if(choice == 2) {
 				choice = getStepId(
-						responseKeyboardMessage(null, update.message(), StepEnum.CONDITIONS.getStep()).message().text());
+						responseKeyboardMessage(null, StepEnum.CONDITIONS.getStep()).message().text());
 			
 				if(choice == 2) {
 					
@@ -94,19 +101,19 @@ public class OrderManager implements Runnable{
 			sendSimpleMessage(StepEnum.DESTADDRESS.getStep());
 			
 			choice = getStepId(
-					responseKeyboardMessage("Enterence", update.message(), StepEnum.SPECIFY.getStep()).message().text());
+					responseKeyboardMessage("Enterence", StepEnum.SPECIFY.getStep()).message().text());
 			
 			if(choice == 1) {
 				//enter number of enntrance in json
 			}
 			
 			choice = getStepId(
-					responseKeyboardMessage("Additional cost", update.message(), StepEnum.YES_NO.getStep()).message().text());
+					responseKeyboardMessage("Additional cost", StepEnum.YES_NO.getStep()).message().text());
 			if(choice == 2) {
 				sendSimpleMessage(StepEnum.ENTER_COST.getStep());
 			}
 			
-			responseKeyboardMessage(null, update.message(), StepEnum.CONFIRM.getStep());
+			responseKeyboardMessage(null, StepEnum.CONFIRM.getStep());
 			
 			
 		} else if (choice == 0) {
@@ -144,35 +151,35 @@ public class OrderManager implements Runnable{
 		}
 	}
 	
-	public Update responseKeyoardMessage(String firstMsg, List<String> keyboardList, Message msg) {
-		if(firstMsg != null) {
-			telegramBot.sendMessage(chatId, firstMsg);
-		}		
+	public Update responseKeyoardMessage(List<String> keyboardList, String msg) {
+		if(msg == null)
+			msg = "hello";
+		
 		String[][] strings = convertListToArray(keyboardList);
 
-		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false, null,
+		telegramBot.sendMessage(chatId, msg, ParseMode.Markdown, false, null,
 								 new ReplyKeyboardMarkup(strings)
 								.oneTimeKeyboard(true).resizeKeyboard(true));
 		
 		return update = waitForResponse();
 	}
 	
-	public Update responseKeyboardMessage(String firstMsg, Message msg, String step) {
+	public Update responseKeyboardMessage(String msg, String step) {
 		this.currentStep = step;
-		
-		if(firstMsg != null) {
-			telegramBot.sendMessage(chatId, firstMsg);
-		}
+		if(msg == null)
+			msg = "hello";
 		
 		List<String> tmpList = new ArrayList<>();
 		for(Language l: responseListBySelectLang) {
 			if(l.getStepLable().equals(step) || l.getStepLable().equals(StepEnum.CANCEL.getStep())) 
 				tmpList.add(l.getText());
+			if(l.getStepLable().equals(step + "Head"))
+				msg = l.getText();
 		}
 		
 		String[][] strings = convertListToArray(tmpList);
 		
-		telegramBot.sendMessage(chatId, msg.text(), ParseMode.Markdown, false, null,
+		telegramBot.sendMessage(chatId, msg, ParseMode.Markdown, false, null,
 				 new ReplyKeyboardMarkup(strings)
 				.oneTimeKeyboard(true).resizeKeyboard(true));
 		
