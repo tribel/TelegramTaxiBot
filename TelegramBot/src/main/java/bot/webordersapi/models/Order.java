@@ -31,6 +31,8 @@ public class Order {
     private int paymentType;
 
 
+    public Order() {
+	}
 
     public Order(boolean reservation, Route route, int taxiColumnId){
         this.reservation = reservation;

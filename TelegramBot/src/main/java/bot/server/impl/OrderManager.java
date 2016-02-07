@@ -7,6 +7,7 @@ import java.util.List;
 
 
 
+
 import javax.inject.Inject;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -15,6 +16,7 @@ import bot.jpa.entity.Language;
 import bot.jpa.service.LanguageService;
 import bot.server.StepEnum;
 import bot.webordersapi.TaxiOrders;
+import bot.webordersapi.models.Order;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
@@ -51,13 +53,14 @@ public class OrderManager implements Runnable{
 		responseListBySelectLang = languageService.getLanguageListByStepLable(update.message().text());
 		
 		int choice = getStepId(
-				responseKeyboardMessage("choose ",StepEnum.LOGIN.getStep()).message().text());	
+				responseKeyboardMessage(null,StepEnum.LOGIN.getStep()).message().text());	
 		
 		if (choice == 1) {
+			Order order = new Order();
 			sendSimpleMessage(StepEnum.ENTER_NAME.getStep());
 			// telephone load
 			choice = getStepId(
-						responseKeyboardMessage("Hello" + update.message().text(), StepEnum.TIME.getStep()).message().text());
+						responseKeyboardMessage(null, StepEnum.TIME.getStep()).message().text());
 			if(choice == 2) {
 				
 			} else if(choice == 1) {
@@ -65,13 +68,13 @@ public class OrderManager implements Runnable{
 			}
 			
 			choice = getStepId(
-					responseKeyboardMessage("Comments ?",StepEnum.YES_NO.getStep()).message().text());
+					responseKeyboardMessage("commentsYN",StepEnum.YES_NO.getStep()).message().text());
 			if(choice == 2) {
 				sendSimpleMessage(StepEnum.COMMENTS.getStep());
 			} 
 			
 			choice = getStepId(
-					responseKeyboardMessage("What car", StepEnum.YES_NO.getStep()).message().text());
+					responseKeyboardMessage("chooseCarYN", StepEnum.YES_NO.getStep()).message().text());
 			
 			if(choice == 2) {
 				choice = getStepId(
@@ -84,7 +87,7 @@ public class OrderManager implements Runnable{
 			}
 			
 			choice = getStepId(
-					responseKeyboardMessage("Additional conditions", StepEnum.YES_NO.getStep()).message().text());
+					responseKeyboardMessage("conditionsYN", StepEnum.YES_NO.getStep()).message().text());
 				
 			if(choice == 2) {
 				choice = getStepId(
@@ -101,14 +104,14 @@ public class OrderManager implements Runnable{
 			sendSimpleMessage(StepEnum.DESTADDRESS.getStep());
 			
 			choice = getStepId(
-					responseKeyboardMessage("Enterence", StepEnum.SPECIFY.getStep()).message().text());
+					responseKeyboardMessage(null, StepEnum.SPECIFY.getStep()).message().text());
 			
 			if(choice == 1) {
 				//enter number of enntrance in json
 			}
 			
 			choice = getStepId(
-					responseKeyboardMessage("Additional cost", StepEnum.YES_NO.getStep()).message().text());
+					responseKeyboardMessage("enterCostYN", StepEnum.YES_NO.getStep()).message().text());
 			if(choice == 2) {
 				sendSimpleMessage(StepEnum.ENTER_COST.getStep());
 			}
@@ -175,6 +178,9 @@ public class OrderManager implements Runnable{
 				tmpList.add(l.getText());
 			if(l.getStepLable().equals(step + "Head"))
 				msg = l.getText();
+			if(l.getStepLable().equals(msg)) {
+				msg = l.getText();
+			}
 		}
 		
 		String[][] strings = convertListToArray(tmpList);
