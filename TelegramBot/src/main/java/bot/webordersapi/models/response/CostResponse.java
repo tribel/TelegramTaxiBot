@@ -5,6 +5,8 @@ public class CostResponse {
 	private String dispatching_order_uid;
 	private String currency;
 	private double order_cost;
+	private boolean discount_trip;
+	private boolean can_pay_bonuses;
 	
 	public CostResponse() {
 	}
@@ -41,10 +43,29 @@ public class CostResponse {
 		this.order_cost = order_cost;
 	}
 
+	
+	public boolean isDiscount_trip() {
+		return discount_trip;
+	}
+
+	public void setDiscount_trip(boolean discount_trip) {
+		this.discount_trip = discount_trip;
+	}
+
+	public boolean isCan_pay_bonuses() {
+		return can_pay_bonuses;
+	}
+
+	public void setCan_pay_bonuses(boolean can_pay_bonuses) {
+		this.can_pay_bonuses = can_pay_bonuses;
+	}
+
 	@Override
 	public String toString() {
 		return "CostResponse [dispatching_order_uid=" + dispatching_order_uid
-				+ ", currency=" + currency + ", order_cost=" + order_cost + "]";
+				+ ", currency=" + currency + ", order_cost=" + order_cost
+				+ ", discount_trip=" + discount_trip + ", can_pay_bonuses="
+				+ can_pay_bonuses + "]";
 	}
 
 }

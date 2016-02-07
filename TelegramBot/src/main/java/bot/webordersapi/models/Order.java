@@ -5,9 +5,8 @@ package bot.webordersapi.models;
  * Created by andreyprvt on 29.01.16.
  */
 public class Order {
-
-    private long id; // order id
-    private String user_full_name; //
+	
+    private String user_full_name;
     private String user_phone_number;
     private boolean reservation;
     private String required_time;
@@ -26,7 +25,7 @@ public class Order {
     private Route route;
     private String route_address_entrance_from;
     private String client_sub_card;
-    private int add_cost;
+    private double add_cost;
     private int taxiColumnId;
     private int paymentType;
 
@@ -76,11 +75,11 @@ public class Order {
         this.client_sub_card = client_sub_card;
     }
 
-    public int getAdd_cost() {
+    public double getAdd_cost() {
         return add_cost;
     }
 
-    public void setAdd_cost(int add_cost) {
+    public void setAdd_cost(double add_cost) {
         this.add_cost = add_cost;
     }
 
@@ -106,14 +105,6 @@ public class Order {
 
     public void setAnimal(boolean animal) {
         this.animal = animal;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getUser_full_name() {

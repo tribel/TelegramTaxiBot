@@ -10,7 +10,18 @@ public class Address {
     private String lat;
     private String lng;
 
-    Address(String name){
+    public Address() {
+	}
+    
+    public Address(String name, String number, String lat, String lng) {
+		super();
+		this.name = name;
+		this.number = number;
+		this.lat = lat;
+		this.lng = lng;
+	}
+
+	public Address(String name){
         this.name = name;
     }
 

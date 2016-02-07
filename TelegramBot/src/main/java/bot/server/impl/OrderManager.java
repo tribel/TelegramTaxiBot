@@ -8,6 +8,8 @@ import java.util.List;
 
 
 
+
+
 import javax.inject.Inject;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -16,7 +18,9 @@ import bot.jpa.entity.Language;
 import bot.jpa.service.LanguageService;
 import bot.server.StepEnum;
 import bot.webordersapi.TaxiOrders;
+import bot.webordersapi.models.Address;
 import bot.webordersapi.models.Order;
+import bot.webordersapi.models.Route;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
@@ -57,20 +61,22 @@ public class OrderManager implements Runnable{
 		
 		if (choice == 1) {
 			Order order = new Order();
-			sendSimpleMessage(StepEnum.ENTER_NAME.getStep());
+			order.setUser_full_name(sendSimpleMessage(StepEnum.ENTER_NAME.getStep()).message().text());
 			// telephone load
 			choice = getStepId(
 						responseKeyboardMessage(null, StepEnum.TIME.getStep()).message().text());
 			if(choice == 2) {
 				
 			} else if(choice == 1) {
-				sendSimpleMessage(StepEnum.ENTER_TIME.getStep());
+				order.setReservation(true);
+				order.setRequired_time(sendSimpleMessage(StepEnum.ENTER_TIME.getStep()).message().text());;
 			}
 			
 			choice = getStepId(
 					responseKeyboardMessage("commentsYN",StepEnum.YES_NO.getStep()).message().text());
 			if(choice == 2) {
-				sendSimpleMessage(StepEnum.COMMENTS.getStep());
+				
+				order.setComment(sendSimpleMessage(StepEnum.COMMENTS.getStep()).message().text());
 			} 
 			
 			choice = getStepId(
@@ -80,9 +86,9 @@ public class OrderManager implements Runnable{
 				choice = getStepId(
 						responseKeyboardMessage(null, StepEnum.CHOOSE_CAR.getStep()).message().text());
 				if(choice == 2) {
-					
+					order.setWagon(true);
 				} else if( choice == 1) {
-					
+					order.setPremium(true);
 				}
 			}
 			
@@ -94,14 +100,17 @@ public class OrderManager implements Runnable{
 						responseKeyboardMessage(null, StepEnum.CONDITIONS.getStep()).message().text());
 			
 				if(choice == 2) {
-					
+					order.setBaggage(true);
 				} else if( choice == 1) {
-					
+					order.setTerminal(true);
 				}
 			}
-			
-			sendSimpleMessage(StepEnum.ADDRESS.getStep());
-			sendSimpleMessage(StepEnum.DESTADDRESS.getStep());
+			ArrayList<Address> tmpRouteList = new ArrayList<>();
+			tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.ADDRESS.getStep()).message().text()));
+			tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.DESTADDRESS.getStep()).message().text()));
+			Route tmpRoute = new Route();
+			tmpRoute.setAddresses(tmpRouteList);
+			order.setRoute(tmpRoute);
 			
 			choice = getStepId(
 					responseKeyboardMessage(null, StepEnum.SPECIFY.getStep()).message().text());
@@ -113,10 +122,16 @@ public class OrderManager implements Runnable{
 			choice = getStepId(
 					responseKeyboardMessage("enterCostYN", StepEnum.YES_NO.getStep()).message().text());
 			if(choice == 2) {
-				sendSimpleMessage(StepEnum.ENTER_COST.getStep());
+				order.setAdd_cost(Double.parseDouble(sendSimpleMessage(StepEnum.ENTER_COST.getStep()).message().text()));
 			}
 			
-			responseKeyboardMessage(null, StepEnum.CONFIRM.getStep());
+			choice = getStepId(
+					responseKeyboardMessage(null, StepEnum.CONFIRM.getStep()).message().text());
+			if(choice == 1) {
+				taxiOrders.calculateCost(order);
+			} else if(choice == 0) {
+				
+			}
 			
 			
 		} else if (choice == 0) {
