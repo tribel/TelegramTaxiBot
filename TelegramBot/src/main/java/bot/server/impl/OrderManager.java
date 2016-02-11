@@ -3,13 +3,6 @@ package bot.server.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
-
-
-
-
-
 import javax.inject.Inject;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -22,6 +15,7 @@ import bot.webordersapi.models.Address;
 import bot.webordersapi.models.Order;
 import bot.webordersapi.models.Route;
 
+import com.google.gson.Gson;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -65,20 +59,23 @@ public class OrderManager implements Runnable{
 			// telephone load
 			choice = getStepId(
 						responseKeyboardMessage(null, StepEnum.TIME.getStep()).message().text());
-			if(choice == 2) {
-				
-			} else if(choice == 1) {
+			if(choice == 1) {
 				order.setReservation(true);
-				order.setRequired_time(sendSimpleMessage(StepEnum.ENTER_TIME.getStep()).message().text());;
+				order.setRequired_time(sendSimpleMessage(StepEnum.ENTER_TIME.getStep()).message().text());
+			} else if(choice == 0) {
+				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+				exit(); return;
 			}
 			
 			choice = getStepId(
 					responseKeyboardMessage("commentsYN",StepEnum.YES_NO.getStep()).message().text());
 			if(choice == 2) {
-				
 				order.setComment(sendSimpleMessage(StepEnum.COMMENTS.getStep()).message().text());
-			} 
-			
+			} else if(choice == 0) {
+				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+				exit(); return;
+			}
+			 
 			choice = getStepId(
 					responseKeyboardMessage("chooseCarYN", StepEnum.YES_NO.getStep()).message().text());
 			
@@ -90,6 +87,9 @@ public class OrderManager implements Runnable{
 				} else if( choice == 1) {
 					order.setPremium(true);
 				}
+			} else if(choice == 0) {
+				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+				exit(); return;
 			}
 			
 			choice = getStepId(
@@ -104,7 +104,12 @@ public class OrderManager implements Runnable{
 				} else if( choice == 1) {
 					order.setTerminal(true);
 				}
+			} else if(choice == 0) {
+				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+				exit(); return;
 			}
+			
+			
 			ArrayList<Address> tmpRouteList = new ArrayList<>();
 			tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.ADDRESS.getStep()).message().text()));
 			tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.DESTADDRESS.getStep()).message().text()));
@@ -116,38 +121,46 @@ public class OrderManager implements Runnable{
 					responseKeyboardMessage(null, StepEnum.SPECIFY.getStep()).message().text());
 			
 			if(choice == 1) {
-				//enter number of enntrance in json
+				order.setRoute_address_entrance_from(sendSimpleMessage(StepEnum.ENTER_ENTRANCE.getStep()).message().text());
+			} else if(choice == 0) {
+				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+				exit(); return;
 			}
 			
 			choice = getStepId(
 					responseKeyboardMessage("enterCostYN", StepEnum.YES_NO.getStep()).message().text());
 			if(choice == 2) {
 				order.setAdd_cost(Double.parseDouble(sendSimpleMessage(StepEnum.ENTER_COST.getStep()).message().text()));
+			} else if(choice == 0) {
+				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+				exit(); return;
 			}
 			
 			choice = getStepId(
 					responseKeyboardMessage(null, StepEnum.CONFIRM.getStep()).message().text());
 			if(choice == 1) {
-				taxiOrders.calculateCost(order);
+				Gson gson = new Gson();
+				System.out.println(gson.toJson(order));
+				//taxiOrders.calculateCost(order);
 			} else if(choice == 0) {
-				
+				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+				exit(); return;
 			}
 			
 			
-		} else if (choice == 0) {
+		} else if(choice == 3) {
+			
+			
+		} else if(choice == 2) {
+			
+		}
+		else if (choice == 0) {
 			sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+			exit();
 			return;
 		}
 		
-
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		AbstractCommandWatcher.updateMap.remove(chatId);
-		AbstractCommandWatcher.OFFSET = update.updateId() + 1;
+		exit();
 	}
 
 	public Update waitForResponse() {
@@ -237,9 +250,23 @@ public class OrderManager implements Runnable{
 		for(Language l: responseListBySelectLang) {
 			if(l.getStepLable().equals(currentStep) && l.getText().equals(str)) {
 				return l.getPriority();
+			} else if(l.getStepLable().equals("cancel")) {
+				return 0;
 			}
 		}
 		return -1;
+	}
+	
+	public void exit() {
+
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		AbstractCommandWatcher.updateMap.remove(chatId);
+		AbstractCommandWatcher.OFFSET = update.updateId() + 1;
 	}
 	
 }

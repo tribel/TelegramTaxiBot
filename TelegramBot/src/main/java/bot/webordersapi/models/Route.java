@@ -7,7 +7,7 @@ import java.util.ArrayList;
  */
 public class Route {
 
-
+	// only two fields without array
 
     ArrayList<Address> addresses;
 

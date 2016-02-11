@@ -14,7 +14,7 @@ public class Main {
 				.build("149115692:AAEG5if5kiK5lMGe9rhueNO90xUm5k2lxwc");
 		AbstractCommandWatcher watcher = new AbstractCommandWatcher(2000, bot);
 		watcher.startUp();	
-				
+
 	} 
 
 }

@@ -17,6 +17,7 @@ public enum StepEnum {
 	CHOOSE_CAR("chooseCar"),
 	CONDITIONS("conditions"),
 	ENTER_COST("enterCost"),
+	ENTER_ENTRANCE("enterEntrance"),
 	CANCEL("cancel");
 	
 	

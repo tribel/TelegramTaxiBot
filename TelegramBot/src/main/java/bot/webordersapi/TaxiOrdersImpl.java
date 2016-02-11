@@ -1,10 +1,13 @@
 package bot.webordersapi;
 
+import javax.inject.Named;
+
 import com.google.gson.Gson;
 
 import bot.webordersapi.models.Order;
 import bot.webordersapi.models.response.CostResponse;
 
+@Named
 public class TaxiOrdersImpl implements TaxiOrders{
 
 	private String url = "http://<ip-addres>:<port>/api/" ;
