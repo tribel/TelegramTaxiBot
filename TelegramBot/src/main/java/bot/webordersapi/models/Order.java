@@ -1,5 +1,7 @@
 package bot.webordersapi.models;
 
+import java.util.List;
+
 
 /**
  * Created by andreyprvt on 29.01.16.
@@ -7,7 +9,7 @@ package bot.webordersapi.models;
 public class Order {
 	
     private String user_full_name;
-    private String user_phone_number;
+    private String user_phone;
     private boolean reservation;
     private String required_time;
     private String comment;
@@ -22,20 +24,20 @@ public class Order {
     private boolean route_undefined;
     private boolean terminal;
     private boolean reciept;
-    private Route route;
+    private List<Address> route;
     private String route_address_entrance_from;
     private String client_sub_card;
     private double add_cost;
     private int taxiColumnId;
-    private int paymentType;
+   private int paymentType;
 
 
     public Order() {
 	}
 
-    public Order(boolean reservation, Route route, int taxiColumnId){
+    public Order(boolean reservation, List<Address> route, int taxiColumnId){
         this.reservation = reservation;
-        this.route = new Route();
+        //this.route = new Route();
         this.route = route;
         this.taxiColumnId = taxiColumnId;
     }
@@ -116,11 +118,11 @@ public class Order {
     }
 
     public String getUser_phone_number() {
-        return user_phone_number;
+        return user_phone;
     }
 
     public void setUser_phone_number(String user_phone_number) {
-        this.user_phone_number = user_phone_number;
+        this.user_phone = user_phone_number;
     }
 
     public boolean isReservation() {
@@ -212,11 +214,11 @@ public class Order {
         this.terminal = terminal;
     }
 
-    public Route getRoute() {
+    public List<Address> getRoute() {
         return route;
     }
 
-    public void setRoute(Route route) {
+    public void setRoute(List<Address> route) {
         this.route = route;
     }
 

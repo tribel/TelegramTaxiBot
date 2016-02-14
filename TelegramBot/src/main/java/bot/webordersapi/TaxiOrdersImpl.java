@@ -10,11 +10,11 @@ import bot.webordersapi.models.response.CostResponse;
 @Named
 public class TaxiOrdersImpl implements TaxiOrders{
 
-	private String url = "http://<ip-addres>:<port>/api/" ;
+	private String url = "http://apk.taxi-*********/api/" ;
 	
 	@Override
 	public CostResponse calculateCost(Order order) {
-		String json = HttpJsonClient.postToURL(url + "weborders/cost", new Gson().toJson(order));
+		String json = HttpJsonClient.postToURL(url + "weborders/cost", new Gson().toJson(order), null, null);
 		CostResponse costResponse = new Gson().fromJson(json, CostResponse.class);
 		return costResponse;
 	}

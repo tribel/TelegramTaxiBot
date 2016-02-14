@@ -55,7 +55,7 @@ public class OrderManager implements Runnable{
 		
 		if (choice == 1) {
 			Order order = new Order();
-			order.setUser_full_name(sendSimpleMessage(StepEnum.ENTER_NAME.getStep()).message().text());
+			order.setUser_full_name(update.message().chat().firstName() + " "+ update.message().chat().lastName());
 			// telephone load
 			choice = getStepId(
 						responseKeyboardMessage(null, StepEnum.TIME.getStep()).message().text());
@@ -115,7 +115,7 @@ public class OrderManager implements Runnable{
 			tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.DESTADDRESS.getStep()).message().text()));
 			Route tmpRoute = new Route();
 			tmpRoute.setAddresses(tmpRouteList);
-			order.setRoute(tmpRoute);
+		//	order.setRoute(tmpRoute);
 			
 			choice = getStepId(
 					responseKeyboardMessage(null, StepEnum.SPECIFY.getStep()).message().text());

@@ -21,6 +21,11 @@ public class Address {
 		this.lng = lng;
 	}
 
+    public Address(String name, String number) {
+    	this.name = name;
+    	this.number = number;
+    }
+    
 	public Address(String name){
         this.name = name;
     }
