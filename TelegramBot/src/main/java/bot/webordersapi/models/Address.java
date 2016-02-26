@@ -7,13 +7,13 @@ public class Address {
 
     private String name;
     private String number;
-    private String lat;
-    private String lng;
+    private Double lat;
+    private Double lng;
 
     public Address() {
 	}
     
-    public Address(String name, String number, String lat, String lng) {
+    public Address(String name, String number, double lat, double lng) {
 		super();
 		this.name = name;
 		this.number = number;
@@ -24,6 +24,12 @@ public class Address {
     public Address(String name, String number) {
     	this.name = name;
     	this.number = number;
+    }
+    
+    public Address(String name, double lat, double lng) {
+    	this.name = name;
+		this.lat = lat;
+		this.lng = lng;
     }
     
 	public Address(String name){
@@ -38,11 +44,11 @@ public class Address {
         this.name = name;
     }
 
-    public String getLat() {
+    public double getLat() {
         return lat;
     }
 
-    public void setLat(String lat) {
+    public void setLat(double lat) {
         this.lat = lat;
     }
 
@@ -54,11 +60,11 @@ public class Address {
         this.number = number;
     }
 
-    public String getLng() {
+    public double getLng() {
         return lng;
     }
 
-    public void setLng(String lng) {
+    public void setLng(double lng) {
         this.lng = lng;
     }
 

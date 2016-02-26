@@ -18,6 +18,9 @@ public enum StepEnum {
 	CONDITIONS("conditions"),
 	ENTER_COST("enterCost"),
 	ENTER_ENTRANCE("enterEntrance"),
+	ORDER_COST_VIEW("orderCostView"),
+	ENTER_TELEPHONE("enterTelephone"),
+	ENTER_PASSWORD("enterPassword"),
 	CANCEL("cancel");
 	
 	

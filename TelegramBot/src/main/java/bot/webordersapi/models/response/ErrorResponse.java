@@ -13,5 +13,17 @@ public class ErrorResponse {
         this.id = id;
     }
 
+	public String getMessage() {
+		return message;
+	}
 
+	public int getId() {
+		return id;
+	}
+
+	@Override
+	public String toString() {
+		return "ErrorResponse [message=" + message + ", id=" + id + "]";
+	}
+    
 }

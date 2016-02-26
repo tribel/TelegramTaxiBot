@@ -1,5 +1,6 @@
 package bot;
 
+
 import bot.server.impl.AbstractCommandWatcher;
 
 import com.pengrad.telegrambot.TelegramBot;
@@ -14,9 +15,10 @@ public class Main {
 				.build("149115692:AAEG5if5kiK5lMGe9rhueNO90xUm5k2lxwc");
 		AbstractCommandWatcher watcher = new AbstractCommandWatcher(2000, bot);
 		watcher.startUp();	
-		
-		
-		
+
+
 	} 
 
+
+	
 }
