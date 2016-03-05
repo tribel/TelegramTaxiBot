@@ -11,6 +11,9 @@ public class Registration {
     String confirm_password;
     String user_first_name;
 
+    public Registration() {
+	}
+    
     public Registration(String phone, String confirm_code, String password, String confirm_password, String user_first_name) {
         this.phone = phone;
         this.confirm_code = confirm_code;
@@ -59,7 +62,9 @@ public class Registration {
 		this.user_first_name = user_first_name;
 	}
     
-    
+    public boolean isPasswordEquals() {
+    	return password.equals(confirm_password);
+    }
 
 
 }

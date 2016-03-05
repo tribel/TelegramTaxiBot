@@ -8,28 +8,28 @@ import java.util.List;
  */
 public class Order {
 	
-    private String user_full_name;
-    private String user_phone;
-    private boolean reservation;
-    private String required_time;
-    private String comment;
-    private String flexible_tariff_name;
-    private boolean wagon;
-    private boolean minibus;
-    private boolean premium;
-    private boolean baggage;
-    private boolean animal;
-    private boolean conditioner;
-    private boolean courier_delivery;
-    private boolean route_undefined;
-    private boolean terminal;
-    private boolean reciept;
-    private List<Address> route;
-    private String route_address_entrance_from;
-    private String client_sub_card;
-    private double add_cost;
-    private int taxiColumnId;
-   private int paymentType;
+    protected String user_full_name;
+    protected String user_phone;
+    protected boolean reservation;
+    protected String required_time;
+    protected String comment;
+    protected String flexible_tariff_name;
+    protected boolean wagon;
+    protected boolean minibus;
+    protected boolean premium;
+    protected boolean baggage;
+    protected boolean animal;
+    protected boolean conditioner;
+    protected boolean courier_delivery;
+    protected boolean route_undefined;
+    protected boolean terminal;
+    protected boolean reciept;
+    protected List<Address> route;
+    protected String route_address_entrance_from;
+    protected String client_sub_card;
+    protected double add_cost;
+    protected int taxiColumnId;
+    protected int paymentType;
 
 
     public Order() {
@@ -42,9 +42,42 @@ public class Order {
         this.taxiColumnId = taxiColumnId;
     }
 
+    
 
+    public Order(String user_full_name, String user_phone, boolean reservation,
+			String required_time, String comment, String flexible_tariff_name,
+			boolean wagon, boolean minibus, boolean premium, boolean baggage,
+			boolean animal, boolean conditioner, boolean courier_delivery,
+			boolean route_undefined, boolean terminal, boolean reciept,
+			List<Address> route, String route_address_entrance_from,
+			String client_sub_card, double add_cost, int taxiColumnId,
+			int paymentType) {
+		super();
+		this.user_full_name = user_full_name;
+		this.user_phone = user_phone;
+		this.reservation = reservation;
+		this.required_time = required_time;
+		this.comment = comment;
+		this.flexible_tariff_name = flexible_tariff_name;
+		this.wagon = wagon;
+		this.minibus = minibus;
+		this.premium = premium;
+		this.baggage = baggage;
+		this.animal = animal;
+		this.conditioner = conditioner;
+		this.courier_delivery = courier_delivery;
+		this.route_undefined = route_undefined;
+		this.terminal = terminal;
+		this.reciept = reciept;
+		this.route = route;
+		this.route_address_entrance_from = route_address_entrance_from;
+		this.client_sub_card = client_sub_card;
+		this.add_cost = add_cost;
+		this.taxiColumnId = taxiColumnId;
+		this.paymentType = paymentType;
+	}
 
-    public String getFlexible_tariff_name() {
+	public String getFlexible_tariff_name() {
         return flexible_tariff_name;
     }
 

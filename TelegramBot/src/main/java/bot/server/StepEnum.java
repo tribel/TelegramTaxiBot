@@ -16,11 +16,13 @@ public enum StepEnum {
 	COMMENTS("comments"),
 	CHOOSE_CAR("chooseCar"),
 	CONDITIONS("conditions"),
+	CONDITIONS2("conditions2"),
 	ENTER_COST("enterCost"),
 	ENTER_ENTRANCE("enterEntrance"),
 	ORDER_COST_VIEW("orderCostView"),
 	ENTER_TELEPHONE("enterTelephone"),
 	ENTER_PASSWORD("enterPassword"),
+	REPEAT("repeat"),
 	CANCEL("cancel");
 	
 	

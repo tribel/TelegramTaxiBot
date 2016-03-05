@@ -10,4 +10,10 @@ public class PhoneNumber {
     public PhoneNumber(String phone) {
         this.phone = phone;
     }
+
+	public String getPhone() {
+		return phone;
+	}
+    
+    
 }

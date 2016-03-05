@@ -14,6 +14,7 @@ public class HttpJsonClient {
 	private static final String APPLICATION_ID = "";
 	
 	public static String postToURL(String url, String msg ,String autorize, boolean addId) {
+		String responseExcptionStr = null;
 		try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
 
 			HttpPost postRequest = new HttpPost(url);
@@ -31,16 +32,24 @@ public class HttpJsonClient {
 			
 			int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode != 200 && statusCode != 201) {
-				throw new RuntimeException("Failed : HTTP error code : "
-						+ response.getStatusLine().getStatusCode());
+				//System.out.println(response);
+				//System.out.println("HEllo form the other side"+ EntityUtils.toString(response.getEntity(),
+					//	"UTF-8"));
+				responseExcptionStr = EntityUtils.toString(response.getEntity(),"UTF-8");
+				System.out.println(responseExcptionStr);
+				return responseExcptionStr;
+				//throw new HttpException();
 			}
 
 			String json = EntityUtils.toString(response.getEntity(), "UTF-8");
-			System.out.println("USPEH" + json);
+			System.out.println("USPEH" );
+			System.out.println(json);
 			return json;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			System.out.println("yta v catche");
+			System.out.println(responseExcptionStr);
+			return responseExcptionStr;
 		}
 	}
 	
