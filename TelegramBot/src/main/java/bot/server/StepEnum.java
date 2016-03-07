@@ -23,6 +23,7 @@ public enum StepEnum {
 	ENTER_TELEPHONE("enterTelephone"),
 	ENTER_PASSWORD("enterPassword"),
 	REPEAT("repeat"),
+	AFTER_AUTHORIZE("afterAuthorize"),
 	CANCEL("cancel");
 	
 	

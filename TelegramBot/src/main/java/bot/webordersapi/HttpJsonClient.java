@@ -3,6 +3,7 @@ package bot.webordersapi;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -50,6 +51,33 @@ public class HttpJsonClient {
 			System.out.println("yta v catche");
 			System.out.println(responseExcptionStr);
 			return responseExcptionStr;
+		}
+	}
+	
+	
+	public static int putToURL(String url, String msg ,String autorize, boolean addId) {
+		try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+			HttpPut httpPut = new HttpPut(url);
+			StringEntity entity = new StringEntity(msg);
+			httpPut.addHeader("content-type", "application/json");
+			
+			if(autorize != null)
+				httpPut.addHeader("Authorization", "Basic " + autorize);
+			
+			if(addId == true)
+				httpPut.addHeader("X-WO-API-APP-ID", APPLICATION_ID);
+			
+			httpPut.setEntity(entity);
+			HttpResponse response = client.execute(httpPut);
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode != 200 && statusCode != 201) {	
+				System.out.println(EntityUtils.toString(response.getEntity(),"UTF-8"));
+				return 0;
+			}
+			return 1;
+		} catch (Exception e) {
+			System.out.println("yta v catche");
+			return 0;
 		}
 	}
 	

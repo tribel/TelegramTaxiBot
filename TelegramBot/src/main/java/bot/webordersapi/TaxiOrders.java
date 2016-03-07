@@ -5,6 +5,7 @@ import bot.webordersapi.models.CreateOrder;
 import bot.webordersapi.models.Order;
 import bot.webordersapi.models.OrderCancel;
 import bot.webordersapi.models.PhoneNumber;
+import bot.webordersapi.models.ProfileRefresh;
 import bot.webordersapi.models.Registration;
 import bot.webordersapi.models.response.AuthorizationResponse;
 import bot.webordersapi.models.response.CostResponse;
@@ -26,5 +27,5 @@ public interface TaxiOrders {
 	
 	public OrderCancelResponse cancelOrder(OrderCancel orderCancel , String authorizBasic);
 
-	
+	public int refreshProfile(ProfileRefresh profileRefresh, String authorizBasic);
 }

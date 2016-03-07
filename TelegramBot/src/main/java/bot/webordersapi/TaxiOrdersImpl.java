@@ -10,6 +10,7 @@ import bot.webordersapi.models.CreateOrder;
 import bot.webordersapi.models.Order;
 import bot.webordersapi.models.OrderCancel;
 import bot.webordersapi.models.PhoneNumber;
+import bot.webordersapi.models.ProfileRefresh;
 import bot.webordersapi.models.Registration;
 import bot.webordersapi.models.response.AuthorizationResponse;
 import bot.webordersapi.models.response.CostResponse;
@@ -69,6 +70,11 @@ public class TaxiOrdersImpl implements TaxiOrders{
 												null, authorizBasic, false);
 		OrderCancelResponse cancelResponse = new Gson().fromJson(json, OrderCancelResponse.class);
 		return cancelResponse;
+	}
+
+	@Override
+	public int refreshProfile(ProfileRefresh profileRefresh, String authorizBasic) {
+		return HttpJsonClient.putToURL(url + "clients/profile", gson.toJson(profileRefresh), authorizBasic, false);
 	}
 	
 

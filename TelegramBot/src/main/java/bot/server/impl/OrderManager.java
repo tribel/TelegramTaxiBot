@@ -18,6 +18,7 @@ import bot.webordersapi.models.AuthorisationRequest;
 import bot.webordersapi.models.CreateOrder;
 import bot.webordersapi.models.Order;
 import bot.webordersapi.models.PhoneNumber;
+import bot.webordersapi.models.ProfileRefresh;
 import bot.webordersapi.models.Registration;
 import bot.webordersapi.models.response.AuthorizationResponse;
 import bot.webordersapi.models.response.CostResponse;
@@ -68,8 +69,17 @@ public class OrderManager implements Runnable{
 			order.setUser_full_name(update.message().chat().firstName() + " "+ update.message().chat().lastName());
 			// telephone load
 			OrderValidator validator = new OrderValidator();
+			boolean telephoneValidFlag = false;
 			do {
+				if(telephoneValidFlag && 
+				  (getStepId(responseKeyboardMessage(
+						  "telephoneNotValid",StepEnum.REPEAT.getStep()).message().text()) == 0)) {
+					sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+					exit(); return;
+				}		
+				
 				order.setUser_phone_number(sendSimpleMessage("enterTelephone").message().text());
+				telephoneValidFlag = true;
 			} while (validator.telephoneValid(order.getUser_phone_number()) == false);
 			
 			if(orderImplement(order) == 0) return;
@@ -82,7 +92,7 @@ public class OrderManager implements Runnable{
 			CostResponse response = taxiOrders.calculateCost(order,getBase64Url(
 												new AuthorisationRequest("0972525116", "1234qwe")));
 			
-			if(response != null) {
+			if(response != null && response.getOrder_cost() != 0.0 ) {
 				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_COST_VIEW.getStep());
 			} else {
 				sendSimpleMessageWithoutUpdate("orderError");
@@ -129,11 +139,29 @@ public class OrderManager implements Runnable{
 			}
 			
 			choice = getStepId(
-					responseKeyboardMessage("startOrder", StepEnum.YES_NO.getStep()).message().text());	
-			if(choice != 2) {
+					responseKeyboardMessage("loginHead", StepEnum.AFTER_AUTHORIZE.getStep()).message().text());
+			if(choice == 1) {
+				
+				if(taxiOrders.refreshProfile(updateUserProfile(), getBase64Url(
+						new AuthorisationRequest(response.getUser_phone(), userPassword))) == 0) {
+					sendSimpleMessageWithoutUpdate("updateError");
+					
+					choice = getStepId(
+							responseKeyboardMessage("startOrder", StepEnum.YES_NO.getStep()).message().text());	
+					if(choice != 2) {
+						sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+						exit(); return;
+					}
+				}else {
+					sendSimpleMessageWithoutUpdate("successfulUpdate");
+				}
+				
+			} else if(choice == 0) {
 				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
 				exit(); return;
 			}
+				
+			
 			
 			order.setUser_full_name(response.getUser_full_name());
 			order.setUser_phone_number(response.getUser_phone());
@@ -142,12 +170,23 @@ public class OrderManager implements Runnable{
 			if(response.getRoute_address_from() == null) {
 				if(orderAddressImplement(order) == 0) return;
 			} else {
-				ArrayList<Address> tmpRouteList = new ArrayList<>();
-				tmpRouteList.add(new Address(response.getRoute_address_from(), response.getRoute_address_number_from()));
-				order.setRoute_address_entrance_from(String.valueOf(response.getRoute_address_entrance_from()));
-				tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.DESTADDRESS.getStep()).message().text(), 
-																50.450814, 30.466327));
-				order.setRoute(tmpRouteList);		
+				
+				choice = getStepId(
+						responseKeyboardMessage("userAddressFrom", StepEnum.YES_NO.getStep()).message().text());
+				if(choice == 2) {
+					ArrayList<Address> tmpRouteList = new ArrayList<>();
+					tmpRouteList.add(new Address(response.getRoute_address_from(), response.getRoute_address_number_from()));
+					order.setRoute_address_entrance_from(String.valueOf(response.getRoute_address_entrance_from()));
+					tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.DESTADDRESS.getStep()).message().text(), 
+																	50.450814, 30.466327));
+					order.setRoute(tmpRouteList);	
+				}else if (choice == 1) {
+					if(orderAddressImplement(order) == 0) return;
+				} else if(choice == 0) {
+					sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+					exit(); return;
+				}
+					
 			}
 			
 			if(orderAddCostImplement(order) == 0) return;
@@ -157,7 +196,7 @@ public class OrderManager implements Runnable{
 			System.out.println(gson.toJson(order));
 			CostResponse costResponse = taxiOrders.calculateCost(order,getBase64Url(
 												new AuthorisationRequest(response.getUser_phone(), userPassword)));
-			if(costResponse != null) {
+			if(costResponse != null && costResponse.getOrder_cost() != 0.0) {
 				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_COST_VIEW.getStep());
 			} else {
 				sendSimpleMessageWithoutUpdate("orderError");
@@ -181,8 +220,19 @@ public class OrderManager implements Runnable{
 		} else if(choice == 2) {
 			OrderValidator validator = new OrderValidator();
 			PhoneNumber phoneNumber = null;
+			boolean telephoneValidFlag = false;
+			
 			do {
+				
+				if(telephoneValidFlag && 
+				  (getStepId(responseKeyboardMessage(
+						  "telephoneNotValid",StepEnum.REPEAT.getStep()).message().text()) == 0)) {
+					sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+					exit(); return;
+				}		
+						
 				phoneNumber = new PhoneNumber(sendSimpleMessage("enterTelephone").message().text());
+				telephoneValidFlag = true;
 			} while (taxiOrders.registration(phoneNumber) != null
 					|| validator.telephoneValid(phoneNumber.getPhone()) == false);
 			
@@ -348,11 +398,27 @@ public class OrderManager implements Runnable{
 	}
 	
 	public int orderImplement(Order order) {
+		OrderValidator validator = new OrderValidator();
 		choice = getStepId(responseKeyboardMessage(null,StepEnum.TIME.getStep()).message().text());
 		
 		if (choice == 1) {
+			String tmpTime = null;
+			boolean timeValidFlag = false;
 			order.setReservation(true);
-			order.setRequired_time(sendSimpleMessage(StepEnum.ENTER_TIME.getStep()).message().text());
+			
+			do {
+				if(timeValidFlag && 
+				  (getStepId(responseKeyboardMessage(
+						  "timeNotValid",StepEnum.REPEAT.getStep()).message().text()) == 0)) {
+					sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
+					exit(); return 0;
+				}		
+					
+				tmpTime = sendSimpleMessage(StepEnum.ENTER_TIME.getStep()).message().text();
+				timeValidFlag = true;
+			} while (!validator.timeValidator(tmpTime));
+			
+			order.setRequired_time(validator.timeConverter(tmpTime));
 		} else if (choice == 0) {
 			sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
 			exit();
@@ -431,7 +497,21 @@ public class OrderManager implements Runnable{
 				responseKeyboardMessage(StepEnum.ENTER_ENTRANCE.getStep(), StepEnum.SPECIFY.getStep()).message().text());
 		
 		if(choice == 1) {
-			order.setRoute_address_entrance_from(sendSimpleMessage(StepEnum.ENTER_ENTRANCE.getStep()).message().text());
+			String tmpEntrance = null;
+			boolean entranceValidFlag = false;
+			
+			do {
+				try {
+					tmpEntrance = sendSimpleMessage(StepEnum.ENTER_ENTRANCE.getStep()).message().text();
+					Integer.valueOf(tmpEntrance);
+					entranceValidFlag = false;
+				} catch (NumberFormatException e) {
+					entranceValidFlag = true;
+					sendSimpleMessageWithoutUpdate("entranceNotValid");
+				}
+			} while (entranceValidFlag);
+			
+			order.setRoute_address_entrance_from(tmpEntrance);
 		} else if(choice == 0) {
 			sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
 			exit(); return 0;
@@ -473,8 +553,8 @@ public class OrderManager implements Runnable{
 		if(response.getRoute_address_from() == null) {
 			sendSimpleMessageWithoutUpdate("userAddressIsNull");
 		} else {
-			telegramBot.sendMessage(this.chatId, response.getRoute_address_from() 
-											 + response.getRoute_address_apartment_from());
+			telegramBot.sendMessage(this.chatId, response.getRoute_address_from() + " "
+											 + response.getRoute_address_number_from());
 		}
 		
 		sendSimpleMessageWithoutUpdate("userDiscount");
@@ -484,5 +564,29 @@ public class OrderManager implements Runnable{
 		sendSimpleMessageWithoutUpdate("userBonuses");
 		telegramBot.sendMessage(this.chatId, String.valueOf(response.getClient_bonuses()));
 	}
-
+	
+	public ProfileRefresh updateUserProfile() {
+		ProfileRefresh profileRefresh = new ProfileRefresh();
+		profileRefresh.setUser_first_name(sendSimpleMessage(StepEnum.ENTER_NAME.getStep()).message().text());
+		profileRefresh.setUser_last_name(sendSimpleMessage("enterSecondName").message().text());
+		profileRefresh.setRoute_address_from(sendSimpleMessage(StepEnum.ADDRESS.getStep()).message().text());
+		profileRefresh.setRoute_address_number_from(sendSimpleMessage("enterNumberAddress").message().text());
+		
+		boolean entranceValidFlag = false;
+		int  tmpEntrance = 0;
+		do {
+			try {
+				tmpEntrance = Integer.valueOf(sendSimpleMessage(StepEnum.ENTER_ENTRANCE.getStep()).message().text());
+				entranceValidFlag = false;
+			} catch (NumberFormatException e) {
+				entranceValidFlag = true;
+				sendSimpleMessageWithoutUpdate("entranceNotValid");
+			}
+		} while (entranceValidFlag);
+		
+		profileRefresh.setRoute_address_entrance_from(tmpEntrance);
+		
+		return profileRefresh;
+	}
+ 
 }
