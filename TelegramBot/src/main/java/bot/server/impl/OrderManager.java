@@ -70,6 +70,8 @@ public class OrderManager implements Runnable{
 			// telephone load
 			OrderValidator validator = new OrderValidator();
 			boolean telephoneValidFlag = false;
+			boolean responseValidFlag = false;
+			
 			do {
 				if(telephoneValidFlag && 
 				  (getStepId(responseKeyboardMessage(
@@ -92,12 +94,33 @@ public class OrderManager implements Runnable{
 			CostResponse response = taxiOrders.calculateCost(order,getBase64Url(
 												new AuthorisationRequest("0972525116", "1234qwe")));
 			
-			if(response != null && response.getOrder_cost() != 0.0 ) {
+			
+			while(!responseValidFlag) {
+				
+				if(response != null && response.getOrder_cost() != 0.0) {
+					sendSimpleMessageWithoutUpdate(StepEnum.ORDER_COST_VIEW.getStep());
+					responseValidFlag = true;
+				} else {
+					responseValidFlag = false;
+					if (getStepId(responseKeyboardMessage("orderResponseYN",
+							StepEnum.YES_NO.getStep()).message().text()) == 2) {
+						if(orderAddressImplement(order) == 0) return;
+						response = taxiOrders.calculateCost(order,getBase64Url(
+								new AuthorisationRequest("0972525116", "1234qwe")));
+					} else {
+						sendSimpleMessageWithoutUpdate("orderError");
+						exit(); return;	
+					}
+					
+				}
+			}
+			
+		/*	if(response != null && response.getOrder_cost() != 0.0 ) {
 				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_COST_VIEW.getStep());
 			} else {
 				sendSimpleMessageWithoutUpdate("orderError");
 				exit(); return;
-			}
+			}*/
 			telegramBot.sendMessage(this.chatId, String.valueOf(response.getOrder_cost() + response.getCurrency()));
 			
 			choice = getStepId(
@@ -108,7 +131,8 @@ public class OrderManager implements Runnable{
 				
 			} else if(choice == 0) {
 				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_CANCEL.getStep());
-				exit(); return;
+				exit(); 
+				return;
 			}
 			
 			
@@ -116,6 +140,7 @@ public class OrderManager implements Runnable{
 			String userTelephone = null , userPassword = null;
 			AuthorizationResponse response = null;
 			boolean repeatFlag = false;
+			boolean responseValidFlag = false;
 			
 			do {
 				if(repeatFlag && 
@@ -127,6 +152,7 @@ public class OrderManager implements Runnable{
 				userPassword = sendSimpleMessage(StepEnum.ENTER_PASSWORD.getStep()).message().text();
 				response = taxiOrders.authorize(new AuthorisationRequest(userTelephone, userPassword));
 				repeatFlag = true;
+				if(response == null ) continue;
 			} while(response.getUser_phone() == null);
 		
 			choice = getStepId(
@@ -196,12 +222,34 @@ public class OrderManager implements Runnable{
 			System.out.println(gson.toJson(order));
 			CostResponse costResponse = taxiOrders.calculateCost(order,getBase64Url(
 												new AuthorisationRequest(response.getUser_phone(), userPassword)));
-			if(costResponse != null && costResponse.getOrder_cost() != 0.0) {
+			
+			
+			while(!responseValidFlag) {
+				
+				if(costResponse != null && costResponse.getOrder_cost() != 0.0) {
+					sendSimpleMessageWithoutUpdate(StepEnum.ORDER_COST_VIEW.getStep());
+					responseValidFlag = true;
+				} else {
+					responseValidFlag = false;
+					if (getStepId(responseKeyboardMessage("orderResponseYN",
+							StepEnum.YES_NO.getStep()).message().text()) == 2) {
+						if(orderAddressImplement(order) == 0) return;
+						costResponse = taxiOrders.calculateCost(order,getBase64Url(
+								new AuthorisationRequest(response.getUser_phone(), userPassword)));
+					} else {
+						sendSimpleMessageWithoutUpdate("orderError");
+						exit(); return;	
+					}
+					
+				}
+			}
+			
+			/*if(costResponse != null && costResponse.getOrder_cost() != 0.0) {
 				sendSimpleMessageWithoutUpdate(StepEnum.ORDER_COST_VIEW.getStep());
 			} else {
 				sendSimpleMessageWithoutUpdate("orderError");
 				exit(); return;
-			}
+			}*/
 			telegramBot.sendMessage(this.chatId, String.valueOf(costResponse.getOrder_cost() +
 																costResponse.getCurrency()));
 			
@@ -374,7 +422,8 @@ public class OrderManager implements Runnable{
 	}
 	
 	public void exit() {
-
+		telegramBot.sendMessage(chatId, "/start");
+		
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -394,6 +443,7 @@ public class OrderManager implements Runnable{
 			e.printStackTrace();
 		}
 		System.out.println(as64);
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!");
 		return as64;
 	}
 	
@@ -491,7 +541,9 @@ public class OrderManager implements Runnable{
 	
 	public int orderAddressImplement(Order order) {
 		ArrayList<Address> tmpRouteList = new ArrayList<>();
-		tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.ADDRESS.getStep()).message().text(),50.42782, 30.66384));
+		OrderValidator validator = new OrderValidator();
+		validator.seperateAddressString(sendSimpleMessage(StepEnum.ADDRESS.getStep()).message().text());
+		tmpRouteList.add(new Address(validator.getFinalAddress(), validator.getFinalAddNumber()));
 		
 		choice = getStepId(
 				responseKeyboardMessage(StepEnum.ENTER_ENTRANCE.getStep(), StepEnum.SPECIFY.getStep()).message().text());
@@ -517,7 +569,8 @@ public class OrderManager implements Runnable{
 			exit(); return 0;
 		}
 		
-		tmpRouteList.add(new Address(sendSimpleMessage(StepEnum.DESTADDRESS.getStep()).message().text(), 50.450814, 30.466327));
+		validator.seperateAddressString(sendSimpleMessage(StepEnum.DESTADDRESS.getStep()).message().text());
+		tmpRouteList.add(new Address(validator.getFinalAddress(), validator.getFinalAddNumber()));
 		order.setRoute(tmpRouteList);
 		return 1;
 	}
@@ -546,6 +599,9 @@ public class OrderManager implements Runnable{
 	}
 	
 	public void showUserProfile(AuthorizationResponse response) {
+		sendSimpleMessageWithoutUpdate("userName");
+		telegramBot.sendMessage(this.chatId, response.getUser_full_name());
+		
 		sendSimpleMessageWithoutUpdate("userBalance");
 		telegramBot.sendMessage(this.chatId, String.valueOf(response.getUser_balance()));
 		

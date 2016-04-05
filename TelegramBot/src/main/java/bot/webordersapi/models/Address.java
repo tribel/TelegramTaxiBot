@@ -7,8 +7,8 @@ public class Address {
 
     private String name;
     private String number;
-    private Double lat;
-    private Double lng;
+/*    private Double lat;
+    private Double lng;*/
 
     public Address() {
 	}
@@ -17,8 +17,8 @@ public class Address {
 		super();
 		this.name = name;
 		this.number = number;
-		this.lat = lat;
-		this.lng = lng;
+	/*	this.lat = lat;
+		this.lng = lng;*/
 	}
 
     public Address(String name, String number) {
@@ -28,8 +28,8 @@ public class Address {
     
     public Address(String name, double lat, double lng) {
     	this.name = name;
-		this.lat = lat;
-		this.lng = lng;
+/*		this.lat = lat;
+		this.lng = lng;*/
     }
     
 	public Address(String name){
@@ -43,14 +43,14 @@ public class Address {
     public void setName(String name) {
         this.name = name;
     }
-
+/*
     public double getLat() {
         return lat;
     }
 
     public void setLat(double lat) {
         this.lat = lat;
-    }
+    }*/
 
     public String getNumber() {
         return number;
@@ -59,19 +59,19 @@ public class Address {
     public void setNumber(String number) {
         this.number = number;
     }
-
+/*
     public double getLng() {
         return lng;
     }
 
     public void setLng(double lng) {
         this.lng = lng;
-    }
+    }*/
 
 	@Override
 	public String toString() {
-		return "Address [name=" + name + ", number=" + number + ", lat=" + lat
-				+ ", lng=" + lng + "]";
+		return "Address [name=" + name + ", number=" + number + /*", lat=" + lat
+				+ ", lng=" + lng + */"]";
 	}
 
 

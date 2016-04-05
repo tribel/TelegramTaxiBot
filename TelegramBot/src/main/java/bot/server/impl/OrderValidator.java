@@ -2,11 +2,15 @@ package bot.server.impl;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 public class OrderValidator {
 	
 	private static final  int MAX_HOUR = 23;
 	private static final int MAX_MINUTE = 59;
+	
+	private String finalAddress = "";
+	private String finalAddNumber ;
 	
 	public OrderValidator() {
 	}
@@ -50,4 +54,30 @@ public class OrderValidator {
 		if(tel.charAt(0) != '0') return false;
 		return true;
 	}
+	
+	public boolean seperateAddressString(String str) {
+		this.finalAddNumber = new String();
+		this.finalAddress = new String();
+		
+		String [] addrArr = str.split(" ");
+		for(String s: addrArr) {
+			try {
+				Integer.valueOf(s);
+				this.finalAddNumber = s;
+			} catch (NumberFormatException e) {
+				this.finalAddress = finalAddress + " " + s;
+			}
+		}
+		return true;
+	}
+
+	public String getFinalAddress() {
+		return finalAddress.trim();
+	}
+
+	public String getFinalAddNumber() {
+		return finalAddNumber;
+	}
+	
+	
  }

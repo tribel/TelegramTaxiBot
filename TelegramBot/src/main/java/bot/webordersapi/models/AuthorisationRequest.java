@@ -16,6 +16,7 @@ public class AuthorisationRequest {
     public AuthorisationRequest(String login, String password) {
         this.login = login;
         this.password = computingSHA512password(password);
+
     }
 
 	public String getLogin() {

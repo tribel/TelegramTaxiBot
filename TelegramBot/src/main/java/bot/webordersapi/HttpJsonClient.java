@@ -1,5 +1,7 @@
 package bot.webordersapi;
 
+import java.nio.charset.Charset;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -19,9 +21,10 @@ public class HttpJsonClient {
 		try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
 
 			HttpPost postRequest = new HttpPost(url);
-			StringEntity entity = new StringEntity(msg);
-			postRequest.addHeader("content-type", "application/json");
+			StringEntity entity = new StringEntity(msg , Charset.forName("UTF-8"));
 			
+			postRequest.addHeader("content-type", "application/json; charset=utf-8");
+			postRequest.addHeader("Accept-Language", "ru, uk-ua;q=0.8, en;q=0.7");
 			if(autorize != null)
 				postRequest.addHeader("Authorization", "Basic " + autorize);
 			
@@ -33,22 +36,16 @@ public class HttpJsonClient {
 			
 			int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode != 200 && statusCode != 201) {
-				//System.out.println(response);
-				//System.out.println("HEllo form the other side"+ EntityUtils.toString(response.getEntity(),
-					//	"UTF-8"));
-				responseExcptionStr = EntityUtils.toString(response.getEntity(),"UTF-8");
+				responseExcptionStr = EntityUtils.toString(response.getEntity());
 				System.out.println(responseExcptionStr);
 				return responseExcptionStr;
-				//throw new HttpException();
 			}
 
 			String json = EntityUtils.toString(response.getEntity(), "UTF-8");
-			System.out.println("USPEH" );
 			System.out.println(json);
 			return json;
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("yta v catche");
 			System.out.println(responseExcptionStr);
 			return responseExcptionStr;
 		}
@@ -58,8 +55,8 @@ public class HttpJsonClient {
 	public static int putToURL(String url, String msg ,String autorize, boolean addId) {
 		try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
 			HttpPut httpPut = new HttpPut(url);
-			StringEntity entity = new StringEntity(msg);
-			httpPut.addHeader("content-type", "application/json");
+			StringEntity entity = new StringEntity(msg , Charset.forName("UTF-8"));
+			httpPut.addHeader("content-type", "application/json; charset=utf-8");
 			
 			if(autorize != null)
 				httpPut.addHeader("Authorization", "Basic " + autorize);
@@ -76,7 +73,6 @@ public class HttpJsonClient {
 			}
 			return 1;
 		} catch (Exception e) {
-			System.out.println("yta v catche");
 			return 0;
 		}
 	}
@@ -98,7 +94,6 @@ public class HttpJsonClient {
 			
 			int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode != 200 || statusCode != 201) {
-				System.out.println("ya otvet " + response);
 				System.out.println(EntityUtils.toString(response.getEntity(),
 						"UTF-8"));
 				throw new RuntimeException("Failed : HTTP error code : "
@@ -106,7 +101,6 @@ public class HttpJsonClient {
 			}
 
 			String json = EntityUtils.toString(response.getEntity(), "UTF-8");
-			System.out.println("USPEH" + json);
 			return json;
 		} catch (Exception e) {
 			e.printStackTrace();
